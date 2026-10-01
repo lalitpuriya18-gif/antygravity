@@ -19,7 +19,7 @@ function getLocalIpAddress() {
 }
 
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'database.json');
+const DB_FILE = process.env.VERCEL ? path.join('/tmp', 'database.json') : path.join(__dirname, 'database.json');
 
 // Initial in-memory database structure
 let db = {
@@ -55,7 +55,7 @@ function saveDatabase() {
 
 loadDatabase();
 
-const LOG_FILE = path.join(__dirname, 'server.log');
+const LOG_FILE = process.env.VERCEL ? path.join('/tmp', 'server.log') : path.join(__dirname, 'server.log');
 function logServer(...args) {
   const timestamp = new Date().toISOString();
   const line = `[${timestamp}] ${args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')}\n`;
@@ -579,9 +579,14 @@ server.keepAliveTimeout = 65000;
 server.headersTimeout = 66000;
 server.requestTimeout = 0;
 
-server.listen(PORT, '0.0.0.0', () => {
-  const ip = getLocalIpAddress();
-  logServer(`Just Say Yes server is running:`);
-  logServer(`  - Local:   http://localhost:${PORT}`);
-  logServer(`  - Mobile:  http://${ip}:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, '0.0.0.0', () => {
+    const ip = getLocalIpAddress();
+    logServer(`Just Say Yes server is running:`);
+    logServer(`  - Local:   http://localhost:${PORT}`);
+    logServer(`  - Mobile:  http://${ip}:${PORT}`);
+  });
+}
+
+module.exports = server;
+

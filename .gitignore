@@ -1,0 +1,5 @@
+﻿node_modules/
+cloudflared.exe
+*.log
+database.json
+.DS_Store

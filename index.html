@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Just Say Yes 😄</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fce7f3 0%, #e0e7ff 50%, #dbeafe 100%);
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(255, 255, 255, 0.95);
+      --card-shadow: 0 20px 60px rgba(99, 102, 241, 0.16), 0 8px 24px rgba(0, 0, 0, 0.05);
+      --yes-grad: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      --yes-shadow: 0 10px 25px rgba(16, 185, 129, 0.38);
+      --yes-glow: 0 0 35px rgba(16, 185, 129, 0.55);
+      --no-grad: linear-gradient(135deg, #ff4b72 0%, #f43f5e 100%);
+      --no-shadow: 0 10px 25px rgba(244, 63, 94, 0.35);
+      --text-main: #1e1b4b;
+      --text-muted: #64748b;
+      --primary: #6366f1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      position: relative;
+    }
+
+    /* Ambient animated background canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Decorative background glowing aurora orbs */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(85px);
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatOrb 14s ease-in-out infinite alternate;
+    }
+
+    .glow-orb-1 {
+      width: 420px;
+      height: 420px;
+      background: #fbcfe8;
+      top: -100px;
+      left: -80px;
+    }
+
+    .glow-orb-2 {
+      width: 460px;
+      height: 460px;
+      background: #c7d2fe;
+      bottom: -120px;
+      right: -100px;
+      animation-duration: 18s;
+      animation-delay: -5s;
+    }
+
+    .glow-orb-3 {
+      width: 340px;
+      height: 340px;
+      background: #bae6fd;
+      top: 40%;
+      left: 65%;
+      animation-duration: 16s;
+      animation-delay: -9s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 60px) scale(1.15); }
+    }
+
+    /* Main Container */
+    .app-wrapper {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      z-index: 10;
+    }
+
+    /* Top Bar Navigation / Info */
+    .top-bar {
+      position: absolute;
+      top: 24px;
+      left: 0;
+      right: 0;
+      padding: 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: #312e81;
+      letter-spacing: -0.02em;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      font-size: 1.35rem;
+      display: inline-block;
+      animation: pulseSmile 2.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseSmile {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(12deg); }
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.12);
+      background: #ffffff;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    .nav-badge-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #e11d48;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+      animation: popIn 0.3s ease;
+    }
+
+    /* Central Card */
+    .main-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid var(--card-border);
+      box-shadow: var(--card-shadow);
+      border-radius: 36px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 640px;
+      text-align: center;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 15;
+      margin: 80px 0 20px;
+    }
+
+    /* Views Switching */
+    .view-container {
+      display: none;
+      opacity: 0;
+      transform: scale(0.96) translateY(12px);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .view-container.active {
+      display: block;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Creator Tabs */
+    .creator-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 26px;
+      background: rgba(241, 245, 249, 0.8);
+      padding: 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 18px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.12);
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.4rem;
+      line-height: 1.2;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .card-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 26px;
+      line-height: 1.5;
+    }
+
+    /* Question Input Form */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .question-input {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 1.15rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(199, 210, 254, 0.7);
+      border-radius: 20px;
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
+      user-select: text;
+    }
+
+    .question-input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .quick-chips-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 26px;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(203, 213, 225, 0.7);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .chip-btn:hover {
+      background: #ffffff;
+      color: var(--primary);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 17px 28px;
+      font-size: 1.15rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Share Link Created Card */
+    .created-link-box {
+      background: rgba(248, 250, 252, 0.9);
+      border: 1.5px solid rgba(226, 232, 240, 0.9);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .created-link-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .created-id-pill {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #4f46e5;
+      background: #e0e7ff;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+
+    .link-copy-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .link-display-input {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      background: white;
+      font-family: monospace;
+      color: #334155;
+      user-select: all;
+    }
+
+    .btn-copy {
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 0 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+      background: #4f46e5;
+    }
+
+    .share-actions-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn-action-outline {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      background: white;
+      border-radius: 16px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.92rem;
+    }
+
+    .btn-action-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Dashboard List */
+    .dashboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .question-card-item {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 20px;
+      padding: 18px 20px;
+      text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      transition: all 0.2s ease;
+    }
+
+    .question-card-item:hover {
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .item-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .item-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .status-badge {
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-waiting {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .status-accepted {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .item-date {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-sm:hover {
+      background: white;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-sm-delete:hover {
+      color: #e11d48;
+      border-color: #fecdd3;
+      background: #fff1f2;
+    }
+
+    /* Notifications List in Dashboard */
+    .notif-item {
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+      border-radius: 16px;
+      padding: 12px 16px;
+      text-align: left;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notif-item strong {
+      color: #be185d;
+    }
+
+    /* Receiver Name Gate (Enter Name Before Answering) */
+    .name-gate-card {
+      text-align: center;
+      padding: 14px 6px;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .name-gate-icon {
+      font-size: 3.5rem;
+      margin-bottom: 14px;
+      display: inline-block;
+      animation: floatKiss 2s ease-in-out infinite alternate;
+    }
+
+    /* Receiver Answer View */
+    .receiver-header {
+      margin-bottom: 22px;
+    }
+
+    .receiver-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #6366f1;
+      background: rgba(99, 102, 241, 0.12);
+      padding: 6px 18px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .receiver-question-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.6rem;
+      line-height: 1.25;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+      word-break: break-word;
+      animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .receiver-prompt-hint {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+
+    .escape-counter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(241, 245, 249, 0.9);
+      color: #475569;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      margin-top: 14px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .escape-counter-pill.bump {
+      transform: scale(1.14);
+      background: #ffe4e6;
+      color: #e11d48;
+      border-color: #fecdd3;
+    }
+
+    /* Escape Status Toast Message */
+    .escape-toast-container {
+      height: 42px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .escape-toast {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 27, 75, 0.94);
+      color: #ffffff;
+      padding: 11px 22px;
+      border-radius: 999px;
+      font-size: 1.12rem;
+      font-weight: 800;
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      transform: translateY(8px) scale(0.9);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .escape-toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Buttons Arena Container */
+    .buttons-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      min-height: 84px;
+      margin-top: 14px;
+      position: relative;
+    }
+
+    /* The YES Button (STABLE, CLICKABLE, NEVER MOVES) */
+    .btn-yes {
+      position: relative;
+      z-index: 100;
+      min-width: 160px;
+      padding: 18px 40px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+      color: white;
+      background: var(--yes-grad);
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: var(--yes-shadow);
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.22s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      outline: none;
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.09);
+      box-shadow: var(--yes-shadow), var(--yes-glow);
+      filter: brightness(1.06);
+    }
+
+    .btn-yes:active {
+      transform: scale(0.96);
+    }
+
+    /* The NO Button (360° OMNIDIRECTIONAL ESCAPE - NEVER DISAPPEARS, GLIDES SMOOTHLY) */
+    .btn-no {
+      position: relative;
+      z-index: 9999 !important;
+      min-width: 160px;
+      padding: 18px 40px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+      color: #ffffff !important;
+      background: linear-gradient(135deg, #ff4b72, #f43f5e) !important;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(244, 63, 94, .35), 0 0 22px rgba(244, 63, 94, .20) !important;
+      /* Elastic spring glide transition */
+      transition: left 0.28s cubic-bezier(0.25, 1, 0.5, 1), top 0.28s cubic-bezier(0.25, 1, 0.5, 1), transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      outline: none;
+      white-space: nowrap;
+      pointer-events: auto;
+      opacity: 1 !important;
+      visibility: visible !important;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: left, top, transform;
+    }
+
+    .btn-no:hover {
+      box-shadow: 0 12px 34px rgba(244, 63, 94, .45), 0 0 26px rgba(244, 63, 94, .30) !important;
+    }
+
+    .btn-no-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    /* Terrified reaction shake during escape */
+    @keyframes terrifiedShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-3px, 2px); }
+      40% { transform: translate(3px, -2px); }
+      60% { transform: translate(-2px, -1px); }
+      80% { transform: translate(2px, 1px); }
+    }
+
+    .btn-no.terrified .btn-no-content {
+      animation: terrifiedShake 0.08s infinite ease-in-out;
+    }
+
+    .no-quip-bubble {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: #1e1b4b;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 9px 18px;
+      border-radius: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.28);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+    }
+
+    .no-quip-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: #1e1b4b transparent transparent transparent;
+    }
+
+    .no-quip-bubble.visible {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    .motion-ghost {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #ff4b72, #f43f5e);
+      opacity: 0.55;
+      z-index: 9998;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      box-shadow: 0 10px 25px rgba(244, 63, 94, 0.3);
+      animation: ghostFade 0.35s ease-out forwards;
+    }
+
+    @keyframes ghostFade {
+      0% { opacity: 0.55; transform: scale(1); filter: blur(0px); }
+      100% { opacity: 0; transform: scale(1.1); filter: blur(6px); }
+    }
+
+    @keyframes puffFade {
+      0% { transform: scale(0.6); opacity: 0.85; }
+      100% { transform: scale(1.4); opacity: 0; filter: blur(4px); }
+    }
+
+    /* Receiver Answer Sent Celebration View */
+    .celebration-view {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .celebration-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #dcfce7, #d1fae5);
+      border: 3.5px solid #86efac;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      margin-bottom: 22px;
+      box-shadow: 0 12px 32px rgba(16, 185, 129, 0.28);
+      animation: bounceSuccess 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .celebration-gif-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: 0 auto 18px auto;
+      border-radius: 26px;
+      padding: 10px;
+      background: linear-gradient(135deg, rgba(254, 205, 211, 0.6), rgba(255, 241, 242, 0.9));
+      box-shadow: 0 16px 40px rgba(244, 63, 94, 0.22), 0 0 0 2px rgba(255, 255, 255, 0.9);
+      animation: bounceSuccess 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .kissing-gif {
+      width: 270px;
+      max-width: 100%;
+      height: auto;
+      border-radius: 22px;
+      display: block;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+      object-fit: cover;
+    }
+
+    .kissing-hearts-float {
+      position: absolute;
+      top: -14px;
+      right: -10px;
+      display: flex;
+      gap: 4px;
+      font-size: 1.7rem;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+      animation: floatKiss 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatKiss {
+      0% { transform: translateY(0) scale(1) rotate(-6deg); }
+      100% { transform: translateY(-8px) scale(1.15) rotate(8deg); }
+    }
+
+    @keyframes bounceSuccess {
+      0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+      70% { transform: scale(1.22) rotate(12deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .celebration-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 3rem;
+      color: #059669;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+
+    .celebration-subtitle {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .celebration-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto 28px;
+    }
+
+    /* Floating Toast for Creator Real-Time Notification */
+    .realtime-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e1b4b;
+      color: white;
+      padding: 16px 22px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 9999;
+      transform: translateY(120%);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 380px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .realtime-toast.active {
+      transform: translateY(0);
+    }
+
+    .realtime-toast-icon {
+      font-size: 2rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 30px 10px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    /* Phone Link Nav Button & Mobile QR Modal */
+    .pill-btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1.5px solid rgba(99, 102, 241, 0.3);
+      border-radius: 999px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pill-btn-nav:hover {
+      background: #ffffff;
+      transform: translateY(-2px) scale(1.03);
+      border-color: var(--primary);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.22);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 32px 28px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+
+    .modal-close-btn {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: #e2e8f0;
+      color: #1e1b4b;
+    }
+
+    .modal-desc {
+      font-size: 0.92rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .qr-container {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .qr-container img {
+      border-radius: 12px;
+      display: block;
+    }
+
+    .mobile-url-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .modal-tip {
+      font-size: 0.82rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 8px 14px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .modal-tip span {
+      font-weight: 700;
+      color: #3b82f6;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 640px) {
+      .main-card {
+        padding: 34px 20px;
+        border-radius: 28px;
+        margin-top: 70px;
+      }
+      .card-title, .receiver-question-title {
+        font-size: 1.95rem;
+      }
+      .celebration-title {
+        font-size: 2.3rem;
+      }
+      .buttons-container {
+        gap: 18px;
+      }
+      .btn-yes, .btn-no {
+        min-width: 135px;
+        padding: 16px 30px;
+        font-size: 1.3rem;
+      }
+      .no-quip-bubble {
+        font-size: 0.98rem;
+        padding: 8px 16px;
+      }
+      .escape-toast {
+        font-size: 1.05rem;
+        padding: 10px 20px;
+      }
+      .kissing-gif {
+        width: 235px;
+      }
+      .top-bar {
+        padding: 0 16px;
+        top: 14px;
+      }
+      .brand {
+        font-size: 1.1rem;
+        padding: 6px 14px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .buttons-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-yes {
+        width: 100%;
+      }
+      .btn-no:not(.detached) {
+        width: 100%;
+      }
+      .btn-no.detached {
+        width: auto !important;
+        min-width: 130px;
+        max-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Glow Orbs for Soft Atmosphere -->
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="glow-orb glow-orb-3"></div>
+
+  <!-- Background Animated Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Fullscreen Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-wrapper">
+    <!-- Top Navigation Bar -->
+    <header class="top-bar">
+      <a href="/" class="brand" id="brand-link">
+        <span class="brand-icon">😄</span>
+        <span>Just Say Yes</span>
+      </a>
+      <div class="top-controls">
+        <button id="nav-mode-btn" class="pill-btn-nav" title="Switch between Creator & Answer modes" onclick="toggleAppMode()">
+          <span id="nav-mode-icon">🏃‍♂️</span>
+          <span id="nav-mode-txt">Try NO Escape</span>
+        </button>
+        <button id="mobile-qr-btn" class="pill-btn-nav" title="Open on Mobile Phone" onclick="openMobileModal()">
+          <span>📱 Phone Link</span>
+        </button>
+        <button id="nav-inbox-btn" class="icon-btn" title="View Inbox" aria-label="Inbox" style="display:none;" onclick="openInboxTab()">
+          <span>🔔</span>
+          <span id="unread-badge" class="nav-badge-count" style="display:none;">0</span>
+        </button>
+        <button id="sound-btn" class="icon-btn" title="Toggle Sound" aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile QR & Direct Link Modal -->
+    <div id="mobile-modal" class="modal-backdrop" style="display:none;" onclick="handleModalBackdropClick(event)">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">📱 Open on Mobile Device</div>
+          <button type="button" class="modal-close-btn" onclick="closeMobileModal()">✕</button>
+        </div>
+        <p class="modal-desc">
+          Scan this QR code with your phone camera, or open the link below on your phone!
+        </p>
+        <div class="qr-container">
+          <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=http://192.168.31.210:3000/" alt="QR Code" width="190" height="190">
+        </div>
+        <div class="mobile-url-box">
+          <input type="text" id="mobile-url-input" class="link-display-input" value="http://192.168.31.210:3000/" readonly>
+          <button type="button" class="btn-copy" onclick="copyMobileUrl()">
+            <span id="copy-mobile-btn-txt">Copy 📋</span>
+          </button>
+        </div>
+        <div class="modal-tip">
+          <span>💡 Tip:</span> Ensure your phone is connected to the same Wi-Fi.
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card Container -->
+    <main class="main-card" id="main-card">
+      
+      <!-- ========================================================
+           MODE A: CREATOR MODE (Create, Share & Dashboard)
+           ======================================================== -->
+      <div id="creator-mode" style="display:none;">
+        <div class="creator-tabs">
+          <button class="tab-btn active" id="tab-btn-create" onclick="switchCreatorTab('create')">
+            <span>✏️</span>
+            <span>Ask Someone</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-dashboard" onclick="switchCreatorTab('dashboard')">
+            <span>📋</span>
+            <span>My Questions</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: CREATE QUESTION -->
+        <section id="tab-create" class="view-container active">
+          <div class="card-badge">✨ Create a Shareable Question</div>
+          <h1 class="card-title">Ask Someone</h1>
+          <p class="card-subtitle">Create your question and get a unique link to send to someone special.</p>
+
+          <form id="create-form" onsubmit="event.preventDefault(); handleCreateQuestion();">
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="create-question-input" 
+                class="question-input" 
+                placeholder="Type your question..." 
+                maxlength="120"
+                autocomplete="off"
+                required
+              >
+            </div>
+
+            <div class="quick-chips-title">Fun Ideas / Presets:</div>
+            <div class="quick-chips">
+              <button type="button" class="chip-btn" onclick="useCreatePreset('Will you join me for the event? 🎟️')">Will you join me for the event? 🎟️</button>
+              <button type="button" class="chip-btn" onclick="useCreatePreset('Will you be my Valentine? 💖')">Will you be my Valentine? 💖</button>
+              <button type="button" class="chip-btn" onclick="useCreatePreset('Can we get pizza tonight? 🍕')">Can we get pizza tonight? 🍕</button>
+              <button type="button" class="chip-btn" onclick="useCreatePreset('Are you free this weekend? ☀️')">Are you free this weekend? ☀️</button>
+              <button type="button" class="chip-btn" onclick="useCreatePreset('Am I your favorite human? 😇')">Am I your favorite human? 😇</button>
+            </div>
+
+            <div style="margin-top: 18px; margin-bottom: 22px; text-align: left;">
+              <label for="create-email-input" style="font-size: 0.88rem; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span>📧 Notification Email:</span>
+                <span style="font-size: 0.76rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 999px;">Gets email on YES</span>
+              </label>
+              <input 
+                type="email" 
+                id="create-email-input" 
+                class="question-input" 
+                style="font-size: 0.98rem; padding: 12px 18px; border-radius: 16px;" 
+                value="inlostlalit@gmail.com" 
+                placeholder="inlostlalit@gmail.com"
+                required
+              >
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-create-submit">
+              <span>Create Question</span>
+              <span>👉</span>
+            </button>
+          </form>
+
+          <!-- Generated Link Modal / Success Box -->
+          <div id="created-link-box" class="created-link-box" style="display:none; margin-top:24px;">
+            <div class="created-link-header">
+              <span style="font-weight:800; font-size:1.1rem; color:#1e1b4b;">🎉 Question Link Ready!</span>
+              <span id="created-id-display" class="created-id-pill">ID: 8F73K2</span>
+            </div>
+            <p style="font-size:0.9rem; color:#64748b; margin-bottom:10px;">
+              Send this unique link to your person. They can only answer YES!
+            </p>
+            <div class="link-copy-row">
+              <input type="text" id="share-link-input" class="link-display-input" readonly>
+              <button type="button" class="btn-copy" onclick="copyCreatedLink()">
+                <span id="copy-btn-txt">Copy Link 📋</span>
+              </button>
+            </div>
+            <div class="share-actions-row">
+              <button type="button" class="btn-action-outline" onclick="shareCreatedLink()">
+                <span>🚀</span>
+                <span>Share</span>
+              </button>
+              <button type="button" class="btn-action-outline" onclick="previewCreatedLink()">
+                <span>👁️</span>
+                <span>Preview Answer Page</span>
+              </button>
+              <button type="button" class="btn-action-outline" onclick="resetCreateForm()">
+                <span>➕</span>
+                <span>New</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: MY QUESTIONS & INBOX -->
+        <section id="tab-dashboard" class="view-container">
+          <div class="card-badge">📬 Live Creator Dashboard</div>
+          <h2 class="card-title">My Questions</h2>
+          <p class="card-subtitle">Real-time tracking of answers received from other devices.</p>
+
+          <!-- Notifications Section -->
+          <div id="notifications-box" style="margin-bottom:20px; display:none;">
+            <div style="font-size:0.85rem; font-weight:800; color:#e11d48; text-transform:uppercase; margin-bottom:8px; text-align:left;">
+              🔔 Recent Acceptances:
+            </div>
+            <div id="notifications-list"></div>
+          </div>
+
+          <!-- Questions List -->
+          <div class="dashboard-list" id="dashboard-questions-list">
+            <div class="empty-state">Loading your questions...</div>
+          </div>
+        </section>
+      </div>
+
+
+      <!-- ========================================================
+           MODE B: RECEIVER ANSWER MODE (PERSON B)
+           ======================================================== -->
+      <div id="receiver-mode" style="display:none;">
+        
+        <!-- Step 1: Name Gate (Enter Name Before Unlocking Question) -->
+        <section id="receiver-name-gate" class="view-container">
+          <div class="name-gate-card">
+            <div class="receiver-badge" style="margin-bottom: 18px;">
+              <span>💌</span>
+              <span>Someone has a question for you...</span>
+            </div>
+            <div class="name-gate-icon">✨</div>
+            <h1 class="card-title" style="margin-bottom: 8px;">Before we begin...</h1>
+            <p class="card-subtitle" style="margin-bottom: 22px;">Please enter your name to reveal the question:</p>
+            <form id="name-gate-form" onsubmit="event.preventDefault(); handleNameGateSubmit();">
+              <div class="input-wrapper" style="margin-bottom: 18px;">
+                <input 
+                  type="text" 
+                  id="receiver-name-input" 
+                  class="question-input" 
+                  placeholder="Your Name... (e.g. Priya)" 
+                  maxlength="40"
+                  autocomplete="name"
+                  required
+                >
+              </div>
+              <button type="submit" class="btn-primary" id="btn-name-submit" style="width: 100%;">
+                <span>Open Question</span>
+                <span>💌</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Step 2: Answer Arena State -->
+        <section id="receiver-arena" class="view-container">
+          <div class="receiver-header">
+            <div class="receiver-badge">
+              <span>💌</span>
+              <span id="receiver-name-badge-txt">Someone has a question for you...</span>
+            </div>
+            <h1 class="receiver-question-title" id="receiver-question-text">Will you say yes?</h1>
+            <p class="receiver-prompt-hint" id="receiver-prompt-hint">Choose your answer below.</p>
+            <div class="escape-counter-pill" id="escape-counter-pill">
+              <span>🏃‍♂️</span>
+              <span id="escape-counter-txt">NO escaped: 0</span>
+            </div>
+          </div>
+
+          <!-- Escape Toast Message -->
+          <div class="escape-toast-container">
+            <div id="escape-toast" class="escape-toast">
+              <span id="escape-toast-emoji">🥺</span>
+              <span id="escape-toast-txt">Please, haan kr do na...</span>
+            </div>
+          </div>
+
+          <!-- Buttons Arena -->
+          <div class="buttons-container" id="buttons-container">
+            <!-- Stable YES Button (NEVER MOVES, NEVER ESCAPES, ALWAYS CLICKABLE) -->
+            <button id="btn-yes" class="btn-yes" onclick="handleReceiverYes()">
+              <span>YES</span>
+              <span>🎉</span>
+            </button>
+
+            <!-- Escaping NO Button (TRUE 360° Omnidirectional Escape) -->
+            <button id="btn-no" class="btn-no" aria-label="No button">
+              <span class="no-quip-bubble" id="no-quip-bubble">Haan kr do please 🥺</span>
+              <span class="btn-no-content" id="btn-no-content">
+                <span id="btn-no-text">NO</span>
+                <span id="btn-no-emoji">🏃</span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Receiver Answer Sent Celebration View -->
+        <section id="receiver-celebration" class="view-container">
+          <div class="celebration-view">
+            <div class="celebration-gif-wrapper">
+              <img src="/kiss.gif" alt="Kissing Cuties" class="kissing-gif" onerror="this.onerror=null; this.src='https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif'">
+              <div class="kissing-hearts-float">
+                <span>💋</span><span>💖</span><span>✨</span>
+              </div>
+            </div>
+            <h2 class="celebration-title">YES! ❤️</h2>
+            <div class="celebration-subtitle">Answer Sent ❤️</div>
+            <p class="celebration-desc" id="celebration-desc-txt">
+              Your YES has been delivered. We always knew you'd make the right choice! 😘
+            </p>
+          </div>
+        </section>
+
+        <!-- Invalid / Expired Question View -->
+        <section id="receiver-error" class="view-container">
+          <div class="celebration-view">
+            <div style="font-size:3rem; margin-bottom:16px;">🔍</div>
+            <h2 class="card-title" style="color:#e11d48;">Question Not Found</h2>
+            <p class="card-subtitle">This question link might have expired or does not exist.</p>
+            <a href="/" class="btn-primary" style="text-decoration:none; display:inline-flex; width:auto; padding:14px 28px;">
+              <span>Create Your Own Question</span>
+              <span>👉</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Real-Time Notification Floating Banner for Creator -->
+  <div id="realtime-toast" class="realtime-toast">
+    <div class="realtime-toast-icon">❤️</div>
+    <div>
+      <div style="font-weight:800; font-size:1.05rem;" id="rt-toast-title">Someone accepted your question!</div>
+      <div style="font-size:0.88rem; color:#cbd5e1; margin-top:2px;" id="rt-toast-desc">"Will you join me?"</div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. GLOBAL STATE & SOUND ENGINE (Web Audio API)
+       ========================================================================== */
+    const MAX_NO_ESCAPES = 25; // Configurable: triggers auto-yes after 25 escapes
+
+    const state = {
+      mode: 'creator', // 'creator' | 'receiver'
+      creatorId: null,
+      activeQuestionId: null,
+      currentQuestionData: null,
+      respondentName: '',
+      noEscapeCount: 0,
+      soundEnabled: true,
+      isNoDetached: false,
+      isEscaping: false,
+      lastEscapeTime: 0,
+      isAutoYesTriggering: false,
+      myQuestions: [],
+      notifications: [],
+      hasAnswered: false
+    };
+
+    // Ensure Creator ID is persistent for Person A
+    function getOrCreateCreatorId() {
+      let id = localStorage.getItem('just_say_yes_creator_id');
+      if (!id) {
+        id = 'creator_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('just_say_yes_creator_id', id);
+      }
+      return id;
+    }
+    state.creatorId = getOrCreateCreatorId();
+
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+      },
+      ensureContext() {
+        this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playPop() {
+        if (!state.soundEnabled) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(420, now);
+          osc.frequency.exponentialRampToValueAtTime(840, now + 0.08);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch(e) {}
+      },
+      playWhoosh() {
+        if (!state.soundEnabled) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const now = this.ctx.currentTime;
+          const startFreq = 280 + Math.random() * 80;
+          const endFreq = 720 + Math.random() * 200;
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.13);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } catch(e) {}
+      },
+      playCelebrationFanfare() {
+        if (!state.soundEnabled) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            const now = this.ctx.currentTime + idx * 0.1;
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.28, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.5);
+          });
+        } catch(e) {}
+      },
+      playNotificationChime() {
+        if (!state.soundEnabled) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        try {
+          const notes = [587.33, 880.00]; // D5, A5
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            const now = this.ctx.currentTime + idx * 0.15;
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.4);
+          });
+        } catch(e) {}
+      }
+    };
+
+    // Toggle Sound Button
+    const soundBtn = document.getElementById('sound-btn');
+    const soundIcon = document.getElementById('sound-icon');
+    soundBtn.addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      soundIcon.textContent = state.soundEnabled ? '🔊' : '🔇';
+      if (state.soundEnabled) {
+        AudioEngine.playPop();
+      }
+    });
+
+    /* ==========================================================================
+       2. BACKGROUND FLOATING PARTICLES & CONFETTI (Canvas)
+       ========================================================================== */
+    const bgCanvas = document.getElementById('particle-canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let particles = [];
+
+    function resizeBgCanvas() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeBgCanvas);
+    resizeBgCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * bgCanvas.width;
+        this.y = Math.random() * bgCanvas.height;
+        this.size = Math.random() * 6 + 3;
+        this.speedY = -(Math.random() * 0.6 + 0.2);
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.type = Math.random() > 0.6 ? 'heart' : (Math.random() > 0.5 ? 'star' : 'bubble');
+        this.color = ['#f43f5e', '#6366f1', '#10b981', '#ec4899', '#3b82f6'][Math.floor(Math.random() * 5)];
+        this.rot = Math.random() * Math.PI * 2;
+        this.rotSpeed = (Math.random() - 0.5) * 0.02;
+      }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.rot += this.rotSpeed;
+        if (this.y < -30) {
+          this.y = bgCanvas.height + 20;
+          this.x = Math.random() * bgCanvas.width;
+        }
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+        if (this.type === 'bubble') {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.type === 'heart') {
+          const s = this.size * 1.2;
+          ctx.beginPath();
+          ctx.moveTo(0, s / 4);
+          ctx.quadraticCurveTo(0, 0, s / 4, 0);
+          ctx.quadraticCurveTo(s / 2, 0, s / 2, s / 4);
+          ctx.quadraticCurveTo(s / 2, s / 2, 0, s);
+          ctx.quadraticCurveTo(-s / 2, s / 2, -s / 2, s / 4);
+          ctx.quadraticCurveTo(-s / 2, 0, -s / 4, 0);
+          ctx.quadraticCurveTo(0, 0, 0, s / 4);
+          ctx.fill();
+        } else {
+          const s = this.size;
+          ctx.beginPath();
+          for (let i = 0; i < 4; i++) {
+            ctx.lineTo(Math.cos((i * Math.PI) / 2) * s, Math.sin((i * Math.PI) / 2) * s);
+            ctx.lineTo(Math.cos((i * Math.PI) / 2 + Math.PI / 4) * (s * 0.35), Math.sin((i * Math.PI) / 2 + Math.PI / 4) * (s * 0.35));
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 35; i++) particles.push(new Particle());
+    function animateParticles() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      for (let p of particles) { p.update(); p.draw(bgCtx); }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // Confetti Engine
+    const confCanvas = document.getElementById('confetti-canvas');
+    const confCtx = confCanvas.getContext('2d');
+    let confettiPieces = [];
+    let confettiActive = false;
+
+    function resizeConfettiCanvas() {
+      confCanvas.width = window.innerWidth;
+      confCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfettiCanvas);
+    resizeConfettiCanvas();
+
+    class ConfettiPiece {
+      constructor() {
+        this.x = confCanvas.width / 2 + (Math.random() - 0.5) * 160;
+        this.y = confCanvas.height * 0.55;
+        this.size = Math.random() * 11 + 6;
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+        const speed = Math.random() * 19 + 12;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.gravity = 0.42;
+        this.drag = 0.985;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = (Math.random() - 0.5) * 16;
+        this.colors = ['#10b981', '#06b6d4', '#ec4899', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6'];
+        this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+        this.shape = Math.random() > 0.4 ? 'rect' : 'circle';
+        this.opacity = 1;
+      }
+      update() {
+        this.vx *= this.drag;
+        this.vy *= this.drag;
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        if (this.y > confCanvas.height - 20) this.opacity -= 0.02;
+      }
+      draw(ctx) {
+        if (this.opacity <= 0) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.globalAlpha = Math.max(0, this.opacity);
+        ctx.fillStyle = this.color;
+        if (this.shape === 'rect') {
+          ctx.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size / 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    function launchConfetti() {
+      confettiPieces = [];
+      confettiActive = true;
+      for (let i = 0; i < 220; i++) confettiPieces.push(new ConfettiPiece());
+    }
+
+    function animateConfetti() {
+      if (confettiActive) {
+        confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+        let alive = 0;
+        for (let cp of confettiPieces) {
+          cp.update();
+          cp.draw(confCtx);
+          if (cp.opacity > 0 && cp.y < confCanvas.height + 50) alive++;
+        }
+        if (alive === 0) {
+          confettiActive = false;
+          confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+        }
+      }
+      requestAnimationFrame(animateConfetti);
+    }
+    animateConfetti();
+
+    /* ==========================================================================
+       3. CLIENT-SIDE ROUTER & INITIALIZATION
+       ========================================================================== */
+    function detectQuestionId() {
+      // 1. Query parameter ?q=8F73K2 or ?demo=1 or ?preview=1
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('q')) return params.get('q').trim();
+      if (params.get('demo') || params.get('preview')) return 'demo';
+
+      // 2. Pathname /question/8F73K2
+      const pathMatch = window.location.pathname.match(/\/question\/([A-Za-z0-9]+)/);
+      if (pathMatch) return pathMatch[1].trim();
+
+      // 3. Hash #q=8F73K2 or #demo or #receiver
+      const hashMatch = window.location.hash.match(/q=([A-Za-z0-9]+)/);
+      if (hashMatch) return hashMatch[1].trim();
+      if (window.location.hash.includes('demo') || window.location.hash.includes('receiver')) return 'demo';
+
+      return null;
+    }
+
+    function toggleAppMode() {
+      AudioEngine.playPop();
+      if (state.mode === 'creator') {
+        state.mode = 'receiver';
+        state.activeQuestionId = 'demo';
+        initReceiverMode('demo');
+      } else {
+        state.mode = 'creator';
+        state.activeQuestionId = null;
+        if (receiverModeContainer) receiverModeContainer.style.display = 'none';
+        initCreatorMode();
+      }
+      updateModeNavBtn();
+    }
+
+    function updateModeNavBtn() {
+      const icon = document.getElementById('nav-mode-icon');
+      const txt = document.getElementById('nav-mode-txt');
+      if (!icon || !txt) return;
+      if (state.mode === 'creator') {
+        icon.textContent = '🏃‍♂️';
+        txt.textContent = 'Try NO Escape';
+      } else {
+        icon.textContent = '✏️';
+        txt.textContent = 'Ask Someone';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchNetworkInfo();
+      const qId = detectQuestionId();
+
+      if (qId) {
+        state.mode = 'receiver';
+        state.activeQuestionId = qId;
+        initReceiverMode(qId);
+      } else {
+        // Person A initial arrival: Open website -> Create question
+        state.mode = 'creator';
+        initCreatorMode();
+      }
+      updateModeNavBtn();
+    });
+
+    /* ==========================================================================
+       3b. MOBILE DEVICE QR & ACCESS HELPERS
+       ========================================================================== */
+    let networkMobileUrl = 'http://192.168.31.210:3000/';
+
+    async function fetchNetworkInfo() {
+      try {
+        const res = await fetch('/api/network-info');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            networkMobileUrl = data.url;
+            const input = document.getElementById('mobile-url-input');
+            const img = document.getElementById('qr-code-img');
+            if (input) input.value = networkMobileUrl;
+            if (img) img.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(networkMobileUrl)}`;
+          }
+        }
+      } catch (e) {}
+    }
+
+    function openMobileModal() {
+      AudioEngine.playPop();
+      fetchNetworkInfo();
+      const modal = document.getElementById('mobile-modal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeMobileModal() {
+      const modal = document.getElementById('mobile-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function handleModalBackdropClick(event) {
+      if (event.target && event.target.id === 'mobile-modal') {
+        closeMobileModal();
+      }
+    }
+
+    function copyMobileUrl() {
+      const input = document.getElementById('mobile-url-input');
+      if (!input) return;
+      input.select();
+      navigator.clipboard.writeText(input.value).then(() => {
+        AudioEngine.playPop();
+        const copyTxt = document.getElementById('copy-mobile-btn-txt');
+        if (copyTxt) copyTxt.textContent = 'Copied! ✅';
+        setTimeout(() => { if (copyTxt) copyTxt.textContent = 'Copy 📋'; }, 2000);
+      });
+    }
+
+    /* ==========================================================================
+       4. CREATOR MODE LOGIC (PERSON A)
+       ========================================================================== */
+    const creatorModeContainer = document.getElementById('creator-mode');
+    const tabCreate = document.getElementById('tab-create');
+    const tabDashboard = document.getElementById('tab-dashboard');
+    const tabBtnCreate = document.getElementById('tab-btn-create');
+    const tabBtnDashboard = document.getElementById('tab-btn-dashboard');
+    const navInboxBtn = document.getElementById('nav-inbox-btn');
+    const unreadBadge = document.getElementById('unread-badge');
+
+    function initCreatorMode() {
+      creatorModeContainer.style.display = 'block';
+      navInboxBtn.style.display = 'flex';
+      loadCreatorQuestions();
+      initRealtimeNotifications();
+    }
+
+    function switchCreatorTab(tab) {
+      AudioEngine.playPop();
+      if (tab === 'create') {
+        tabBtnCreate.classList.add('active');
+        tabBtnDashboard.classList.remove('active');
+        tabCreate.classList.add('active');
+        tabDashboard.classList.remove('active');
+      } else {
+        tabBtnCreate.classList.remove('active');
+        tabBtnDashboard.classList.add('active');
+        tabCreate.classList.remove('active');
+        tabDashboard.classList.add('active');
+        loadCreatorQuestions();
+      }
+    }
+
+    function openInboxTab() {
+      switchCreatorTab('dashboard');
+    }
+
+    function useCreatePreset(text) {
+      document.getElementById('create-question-input').value = text;
+      AudioEngine.playPop();
+    }
+
+    async function handleCreateQuestion() {
+      const input = document.getElementById('create-question-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const emailInput = document.getElementById('create-email-input');
+      const creatorEmail = (emailInput && emailInput.value.trim()) || 'inlostlalit@gmail.com';
+
+      AudioEngine.playPop();
+      const submitBtn = document.getElementById('btn-create-submit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Creating...';
+
+      try {
+        const res = await fetch('/api/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question_text: text,
+            creator_id: state.creatorId,
+            creator_email: creatorEmail
+          })
+        });
+
+        const data = await res.json();
+        if (data.success && data.question) {
+          const q = data.question;
+          showCreatedLink(q.id);
+          AudioEngine.playCelebrationFanfare();
+          loadCreatorQuestions(); // Refresh dashboard list
+        } else {
+          alert('Could not create question. Please try again.');
+        }
+      } catch (err) {
+        console.error('Create question error:', err);
+        // Fallback offline mock for static testing
+        const mockId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        showCreatedLink(mockId);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Create Question</span> <span>👉</span>';
+      }
+    }
+
+    function showCreatedLink(questionId) {
+      const shareUrl = `${window.location.origin}/?q=${questionId}`;
+      document.getElementById('created-id-display').textContent = `ID: ${questionId}`;
+      document.getElementById('share-link-input').value = shareUrl;
+      document.getElementById('created-link-box').style.display = 'block';
+    }
+
+    function copyCreatedLink() {
+      const linkInput = document.getElementById('share-link-input');
+      linkInput.select();
+      navigator.clipboard.writeText(linkInput.value).then(() => {
+        AudioEngine.playPop();
+        const copyTxt = document.getElementById('copy-btn-txt');
+        copyTxt.textContent = 'Copied! ✅';
+        setTimeout(() => { copyTxt.textContent = 'Copy Link 📋'; }, 2000);
+      });
+    }
+
+    function shareCreatedLink() {
+      const url = document.getElementById('share-link-input').value;
+      if (navigator.share) {
+        navigator.share({
+          title: 'I have a question for you 😄',
+          text: 'Open this link and choose your answer!',
+          url: url
+        }).catch(() => {});
+      } else {
+        copyCreatedLink();
+      }
+    }
+
+    function previewCreatedLink() {
+      const url = document.getElementById('share-link-input').value;
+      window.open(url, '_blank');
+    }
+
+    function resetCreateForm() {
+      document.getElementById('create-question-input').value = '';
+      document.getElementById('created-link-box').style.display = 'none';
+      document.getElementById('create-question-input').focus();
+    }
+
+    async function loadCreatorQuestions() {
+      try {
+        const res = await fetch(`/api/creators/${state.creatorId}/questions`);
+        if (!res.ok) return;
+        const data = await res.json();
+        state.myQuestions = data.questions || [];
+        renderDashboardQuestions();
+      } catch (err) {
+        console.log('Error loading questions:', err);
+      }
+    }
+
+    function renderDashboardQuestions() {
+      const listEl = document.getElementById('dashboard-questions-list');
+      if (!state.myQuestions || state.myQuestions.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">No questions created yet. Click "Ask Someone" above to create your first!</div>`;
+        return;
+      }
+
+      listEl.innerHTML = state.myQuestions.map(q => {
+        const isAccepted = q.status === 'accepted';
+        const dateStr = new Date(q.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const shareUrl = `${window.location.origin}/?q=${q.id}`;
+
+        return `
+          <div class="question-card-item">
+            <div class="item-top-row">
+              <div class="item-title">${escapeHtml(q.question_text)}</div>
+              <span class="status-badge ${isAccepted ? 'status-accepted' : 'status-waiting'}">
+                ${isAccepted ? `YES ❤️ Accepted by ${escapeHtml(q.respondent_name || 'Someone')}` : 'Waiting ⏳'}
+              </span>
+            </div>
+            <div class="item-date">Created on ${dateStr} • ID: <code>${q.id}</code> ${q.creator_email ? `• 📧 ${escapeHtml(q.creator_email)}` : ''}</div>
+            <div class="item-actions">
+              <button class="btn-sm" onclick="copyLinkDirect('${shareUrl}')">📋 Copy Link</button>
+              <button class="btn-sm" onclick="window.open('${shareUrl}', '_blank')">👁️ Open</button>
+              <button class="btn-sm btn-sm-delete" onclick="deleteQuestion('${q.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function copyLinkDirect(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        AudioEngine.playPop();
+        alert('Shareable link copied to clipboard! 📋');
+      });
+    }
+
+    async function deleteQuestion(qId) {
+      if (!confirm('Are you sure you want to delete this question?')) return;
+      try {
+        await fetch(`/api/questions/${qId}`, {
+          method: 'DELETE',
+          headers: { 'X-Creator-Id': state.creatorId }
+        });
+        loadCreatorQuestions();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Real-Time Notification SSE & Polling
+    function initRealtimeNotifications() {
+      // 1. Try Server-Sent Events (SSE)
+      if (window.EventSource) {
+        try {
+          const evtSource = new EventSource(`/api/creators/${state.creatorId}/stream`);
+          evtSource.addEventListener('notification', (e) => {
+            const notif = JSON.parse(e.data);
+            handleIncomingNotification(notif);
+          });
+        } catch (e) {
+          console.log('SSE not supported or failed, falling back to polling');
+        }
+      }
+
+      // 2. Fallback polling every 4 seconds to guarantee updates
+      setInterval(async () => {
+        try {
+          const res = await fetch(`/api/creators/${state.creatorId}/notifications`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const notifs = data.notifications || [];
+          if (notifs.length > state.notifications.length) {
+            // New notification detected!
+            const latest = notifs[0];
+            handleIncomingNotification(latest);
+            state.notifications = notifs;
+          }
+        } catch (err) {}
+      }, 4000);
+    }
+
+    function handleIncomingNotification(notif) {
+      AudioEngine.playNotificationChime();
+      showRealtimeToast(notif.message, notif.question_text);
+      loadCreatorQuestions(); // Refresh question cards
+    }
+
+    function showRealtimeToast(title, desc) {
+      const toast = document.getElementById('realtime-toast');
+      document.getElementById('rt-toast-title').textContent = title;
+      document.getElementById('rt-toast-desc').textContent = `"${desc}"`;
+      toast.classList.add('active');
+
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 5000);
+    }
+
+    /* ==========================================================================
+       5. RECEIVER ANSWER MODE LOGIC (PERSON B)
+       ========================================================================== */
+    const receiverModeContainer = document.getElementById('receiver-mode');
+    const receiverArena = document.getElementById('receiver-arena');
+    const receiverCelebration = document.getElementById('receiver-celebration');
+    const receiverError = document.getElementById('receiver-error');
+
+    const btnNo = document.getElementById('btn-no');
+    const btnYes = document.getElementById('btn-yes');
+    const escapeToast = document.getElementById('escape-toast');
+    const escapeToastTxt = document.getElementById('escape-toast-txt');
+    const escapeToastEmoji = document.getElementById('escape-toast-emoji');
+    const escapeCounterTxt = document.getElementById('escape-counter-txt');
+    const escapeCounterPill = document.getElementById('escape-counter-pill');
+    const noQuipBubble = document.getElementById('no-quip-bubble');
+    let toastTimeout = null;
+    let quipBubbleTimeout = null;
+
+    async function initReceiverMode(qId) {
+      if (creatorModeContainer) creatorModeContainer.style.display = 'none';
+      receiverModeContainer.style.display = 'block';
+
+      if (!qId || qId === 'demo' || qId === 'preview') {
+        document.getElementById('receiver-question-text').textContent = 'Will you say yes? ❤️';
+        checkNameGateThenEnter('demo');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/questions/${qId}`);
+        if (!res.ok) {
+          showReceiverError();
+          return;
+        }
+
+        const data = await res.json();
+        state.currentQuestionData = data;
+        document.getElementById('receiver-question-text').textContent = data.question_text || 'Will you say yes? ❤️';
+
+        if (data.already_answered) {
+          state.hasAnswered = true;
+          showReceiverCelebration(true);
+        } else {
+          checkNameGateThenEnter(qId);
+        }
+      } catch (err) {
+        console.error('Error fetching question:', err);
+        showReceiverError();
+      }
+    }
+
+    function checkNameGateThenEnter(qId) {
+      const savedName = sessionStorage.getItem('just_say_yes_name_' + qId);
+      if (savedName) {
+        state.respondentName = savedName;
+        showReceiverArena();
+      } else {
+        showReceiverNameGate();
+      }
+    }
+
+    function showReceiverNameGate() {
+      const nameGate = document.getElementById('receiver-name-gate');
+      receiverArena.style.display = 'none';
+      receiverArena.classList.remove('active');
+      receiverCelebration.style.display = 'none';
+      receiverCelebration.classList.remove('active');
+      receiverError.style.display = 'none';
+      receiverError.classList.remove('active');
+
+      if (nameGate) {
+        nameGate.style.display = 'block';
+        void nameGate.offsetWidth;
+        nameGate.classList.add('active');
+        const input = document.getElementById('receiver-name-input');
+        if (input) setTimeout(() => input.focus(), 300);
+      }
+    }
+
+    function handleNameGateSubmit() {
+      const input = document.getElementById('receiver-name-input');
+      const name = input ? input.value.trim() : '';
+      if (!name) return;
+
+      state.respondentName = name;
+      if (state.activeQuestionId) {
+        sessionStorage.setItem('just_say_yes_name_' + state.activeQuestionId, name);
+      }
+
+      AudioEngine.playPop();
+      showReceiverArena();
+    }
+
+    function showReceiverArena() {
+      const nameGate = document.getElementById('receiver-name-gate');
+      if (nameGate) {
+        nameGate.classList.remove('active');
+        nameGate.style.display = 'none';
+      }
+
+      receiverArena.style.display = 'block';
+      void receiverArena.offsetWidth;
+      receiverArena.classList.add('active');
+
+      const badgeSpan = document.getElementById('receiver-name-badge-txt');
+      if (badgeSpan) {
+        badgeSpan.textContent = state.respondentName 
+          ? `Special question for ${state.respondentName}...` 
+          : `Someone has a question for you...`;
+      }
+
+      const promptHint = document.getElementById('receiver-prompt-hint');
+      if (promptHint && state.respondentName) {
+        promptHint.textContent = `Choose your answer below, ${state.respondentName} 😉`;
+      }
+
+      setupStrictNoEscapeLogic();
+    }
+
+    function showReceiverCelebration(alreadyAnswered = false) {
+      if (btnNo) {
+        btnNo.style.display = 'none';
+        btnNo.style.pointerEvents = 'none';
+      }
+      const nameGate = document.getElementById('receiver-name-gate');
+      if (nameGate) {
+        nameGate.classList.remove('active');
+        nameGate.style.display = 'none';
+      }
+      receiverArena.classList.remove('active');
+      receiverArena.style.display = 'none';
+      receiverCelebration.style.display = 'block';
+      void receiverCelebration.offsetWidth;
+      receiverCelebration.classList.add('active');
+
+      const name = state.respondentName || (state.currentQuestionData && state.currentQuestionData.respondent_name) || '';
+      const subtitleEl = document.querySelector('.celebration-subtitle');
+      const descEl = document.getElementById('celebration-desc-txt');
+
+      if (alreadyAnswered) {
+        if (subtitleEl) subtitleEl.textContent = name 
+          ? `This question was already accepted by ${name}! ❤️` 
+          : 'This question was already accepted! ❤️';
+      } else {
+        if (subtitleEl) subtitleEl.textContent = 'Answer Sent ❤️';
+        if (descEl) {
+          descEl.textContent = name
+            ? `Thank you, ${name}! Your YES has been delivered to the creator. We always knew you'd make the right choice! 😘`
+            : `Your YES has been delivered. We always knew you'd make the right choice! 😘`;
+        }
+      }
+    }
+
+    function showReceiverError() {
+      const nameGate = document.getElementById('receiver-name-gate');
+      if (nameGate) {
+        nameGate.classList.remove('active');
+        nameGate.style.display = 'none';
+      }
+      receiverArena.classList.remove('active');
+      receiverArena.style.display = 'none';
+      receiverError.style.display = 'block';
+      void receiverError.offsetWidth;
+      receiverError.classList.add('active');
+    }
+
+    /* ==========================================================================
+       6. ADVANCED NO BUTTON — 360° OMNIDIRECTIONAL ESCAPE
+       - True 360° directional escape: flees directly opposite pointer approach
+       - Continuous vector calculation (dx, dy, normalize, reverse)
+       - Escape distance: 250–400px (noticeable leap, never moves too little)
+       - Smart boundary handling: strictly inside viewport with 24px safe padding
+       - Intelligent redirection with minimal angle deviation if hitting boundary
+       - Never overlaps YES button (YES is stable, never moves, always clickable)
+       - Never disappears: opacity 1, visibility visible, display inline-flex, z-index 9999
+       - Smooth spring-like glide (0.28s cubic-bezier(0.25, 1, 0.5, 1))
+       - Terrified reaction during flight ("NO 😱💨", shake, scale, tilt, ghost trail)
+       - Restores to "NO 🏃", 0deg rotation, scale 1, completely still on arrival
+       - One touch = exactly one escape (no continuous triggering, no multi-firing)
+       - Infinite chase capability up to MAX_NO_ESCAPES (25)
+       - Escape #25: performs 360° escape, shows "Okay, okay... you win 😂❤️",
+         then after ~800ms triggers automatic YES!
+       ========================================================================== */
+    function getEscapeQuip(count) {
+      const quips = {
+        1: { text: "Please haan kr do na... 🥺❤️", emoji: "🥺" },
+        2: { text: "Maan jao na please! 🥺✨", emoji: "🥺" },
+        3: { text: "Aise mat karo yaar 😭💔", emoji: "😭" },
+        4: { text: "Itna bhav mat khao na 😂❤️", emoji: "😂" },
+        5: { text: "Haan kr do na please! 🥰🌹", emoji: "🥰" },
+        6: { text: "Ek baar YES toh bolo 😉💚", emoji: "😉" },
+        7: { text: "Pakka regret nahi karoge 💖✨", emoji: "💖" },
+        8: { text: "Dekho NO bhi mana kar raha hai 🏃‍♂️💨", emoji: "🏃‍♂️" },
+        9: { text: "Meri jaan, please maan jao 🥺❤️", emoji: "🥺" },
+        10: { text: "Kitna bhagaoge mujhe? 🏃‍♂️💨", emoji: "🏃‍♂️" },
+        11: { text: "Sach me NO dabane ki koshish? 😜", emoji: "😜" },
+        12: { text: "Dil mat todo na mera 💔🥺", emoji: "💔" },
+        13: { text: "Sirf ek click dur ho... YES dabao 👉💚", emoji: "👉" },
+        14: { text: "Bas ek baar haan bol do 🌹❤️", emoji: "🌹" },
+        15: { text: "Main nahi manunga, YES hi bolna padega! 😤❤️", emoji: "😤" },
+        16: { text: "Please bol do na, kya chala jayega? 🥺🥰", emoji: "🥺" },
+        17: { text: "Ab toh haan kardo baba! 😭❤️", emoji: "😭" },
+        18: { text: "NO button toh milne se raha 😂🏃", emoji: "😂" },
+        19: { text: "Aakhri baar bol raha hu, haan kardo! 🥺💖", emoji: "🥺" },
+        20: { text: "Chalo maan bhi jao ab 😘✨", emoji: "😘" },
+        21: { text: "Zid chhod do aur YES daba do 🥺💚", emoji: "🥺" },
+        22: { text: "Kitna tadpaoge? Haan kr do na 😭❤️", emoji: "😭" },
+        23: { text: "YES button kitna sundar hai dekho 👉💚", emoji: "💚" },
+        24: { text: "Bas ab YES dabana hi padega! 🏃‍♂️💨", emoji: "🏃‍♂️" }
+      };
+
+      if (count >= MAX_NO_ESCAPES) {
+        return { text: "Aww itni koshish! Ab toh HAAN hai hi ❤️🎉", emoji: "❤️" };
+      }
+
+      if (quips[count]) {
+        return quips[count];
+      }
+
+      const fallbacks = [
+        { text: "Please haan kr do na... 🥺❤️", emoji: "🥺" },
+        { text: "Maan jao na please! 🥺✨", emoji: "🥺" },
+        { text: "Aise mat karo yaar 😭", emoji: "😭" },
+        { text: "Ek baar YES toh bolo 😉❤️", emoji: "😉" },
+        { text: "Itna mat satao, haan kardo! 🥰", emoji: "🥰" },
+        { text: "Meri jaan please maan jao 🥺💖", emoji: "🥺" }
+      ];
+      return fallbacks[count % fallbacks.length];
+    }
+
+    function showEscapeMessage(count) {
+      const quip = getEscapeQuip(count);
+      escapeToastTxt.textContent = quip.text;
+      escapeToastEmoji.textContent = quip.emoji;
+      escapeToast.classList.add('show');
+      
+      noQuipBubble.textContent = quip.text;
+      noQuipBubble.classList.add('visible');
+
+      clearTimeout(toastTimeout);
+      clearTimeout(quipBubbleTimeout);
+
+      toastTimeout = setTimeout(() => { escapeToast.classList.remove('show'); }, 2400);
+      quipBubbleTimeout = setTimeout(() => { noQuipBubble.classList.remove('visible'); }, 2100);
+    }
+
+    function updateEscapeCounter() {
+      escapeCounterTxt.textContent = `NO escaped: ${state.noEscapeCount}`;
+      escapeCounterPill.classList.remove('bump');
+      void escapeCounterPill.offsetWidth;
+      escapeCounterPill.classList.add('bump');
+    }
+
+    function spawnMotionGhost(rect) {
+      const ghost = document.createElement('div');
+      ghost.className = 'motion-ghost';
+      ghost.style.left = `${rect.left}px`;
+      ghost.style.top = `${rect.top}px`;
+      ghost.style.width = `${rect.width}px`;
+      ghost.style.height = `${rect.height}px`;
+      ghost.innerHTML = '<span>NO 🏃</span>';
+      document.body.appendChild(ghost);
+
+      // Comic dust trail puff
+      const puff = document.createElement('div');
+      puff.style.position = 'fixed';
+      puff.style.left = `${rect.left + rect.width / 2 - 16}px`;
+      puff.style.top = `${rect.top + rect.height / 2 - 16}px`;
+      puff.style.fontSize = '1.8rem';
+      puff.style.pointerEvents = 'none';
+      puff.style.zIndex = '9998';
+      puff.style.animation = 'puffFade 0.38s ease-out forwards';
+      puff.textContent = '💨';
+      document.body.appendChild(puff);
+
+      setTimeout(() => {
+        ghost.remove();
+        puff.remove();
+      }, 380);
+    }
+
+    /*
+      360-Degree Continuous Omnidirectional Escape Physics:
+      1. pointerX, pointerY: pointer touch/entry coordinates
+      2. buttonCenterX, buttonCenterY: center of NO button
+      3. dx = pointerX - buttonCenterX, dy = pointerY - buttonCenterY
+      4. Normalize vector
+      5. Reverse vector: fleeX = -dx / distance, fleeY = -dy / distance
+      6. Move along flee vector (250–400px default)
+      7. Smart boundary handling: keep button strictly inside safe area (padding 24px)
+      8. If hitting boundary, stop at boundary or intelligently redirect with minimal angle offset
+    */
+    function calculate360EscapePosition(pointerX, pointerY) {
+      const btnRect = btnNo.getBoundingClientRect();
+      const btnWidth = btnRect.width || 160;
+      const btnHeight = btnRect.height || 64;
+      const pad = 24;
+
+      const minX = pad;
+      const maxX = Math.max(minX, window.innerWidth - btnWidth - pad);
+      const minY = pad;
+      const maxY = Math.max(minY, window.innerHeight - btnHeight - pad);
+
+      const curX = btnRect.left;
+      const curY = btnRect.top;
+      const btnCenterX = curX + btnWidth / 2;
+      const btnCenterY = curY + btnHeight / 2;
+
+      // 1. Vector from center to pointer
+      let dx = pointerX - btnCenterX;
+      let dy = pointerY - btnCenterY;
+      let dist = Math.hypot(dx, dy);
+
+      let fleeX, fleeY, baseAngle;
+      if (dist < 1) {
+        // Fallback if pointer entered dead-center
+        const screenCenterX = window.innerWidth / 2;
+        const screenCenterY = window.innerHeight / 2;
+        baseAngle = Math.atan2(screenCenterY - btnCenterY, screenCenterX - btnCenterX) + Math.PI;
+        fleeX = Math.cos(baseAngle);
+        fleeY = Math.sin(baseAngle);
+      } else {
+        // Exact normalized reversed flee vector
+        fleeX = -dx / dist;
+        fleeY = -dy / dist;
+        baseAngle = Math.atan2(fleeY, fleeX);
+      }
+
+      // YES button exclusion zone (YES must never be covered or obstructed)
+      const yesRect = btnYes.getBoundingClientRect();
+      const yesBuffer = 20;
+      const noGoYes = {
+        left: yesRect.left - yesBuffer,
+        top: yesRect.top - yesBuffer,
+        right: yesRect.right + yesBuffer,
+        bottom: yesRect.bottom + yesBuffer
+      };
+
+      function overlapsYes(x, y) {
+        return !(x + btnWidth < noGoYes.left || x > noGoYes.right || y + btnHeight < noGoYes.top || y > noGoYes.bottom);
+      }
+
+      // Maximum ray travel distance before hitting safe screen boundaries
+      function getMaxRayDistance(startX, startY, vx, vy) {
+        let maxD = Infinity;
+        if (vx > 1e-5) {
+          maxD = Math.min(maxD, (maxX - startX) / vx);
+        } else if (vx < -1e-5) {
+          maxD = Math.min(maxD, (minX - startX) / vx);
+        }
+        if (vy > 1e-5) {
+          maxD = Math.min(maxD, (maxY - startY) / vy);
+        } else if (vy < -1e-5) {
+          maxD = Math.min(maxD, (minY - startY) / vy);
+        }
+        return Math.max(0, maxD);
+      }
+
+      // Escape distance between 260px and 360px (strictly within 250-400px range)
+      const desiredDist = 260 + Math.random() * 90;
+
+      // 1. Test direct flee trajectory (0° offset)
+      const directMaxD = getMaxRayDistance(curX, curY, fleeX, fleeY);
+      if (directMaxD >= desiredDist) {
+        const targetX = curX + fleeX * desiredDist;
+        const targetY = curY + fleeY * desiredDist;
+        if (!overlapsYes(targetX, targetY)) {
+          return {
+            x: Math.max(minX, Math.min(maxX, targetX)),
+            y: Math.max(minY, Math.min(maxY, targetY))
+          };
+        }
+      }
+
+      // 2. Direct flee reaches boundary, but still allows a clearly noticeable leap (>= 220px)
+      if (directMaxD >= 220) {
+        const targetX = curX + fleeX * directMaxD;
+        const targetY = curY + fleeY * directMaxD;
+        if (!overlapsYes(targetX, targetY)) {
+          return {
+            x: Math.max(minX, Math.min(maxX, targetX)),
+            y: Math.max(minY, Math.min(maxY, targetY))
+          };
+        }
+      }
+
+      // 3. Intelligently redirect along the nearest valid direction
+      // while preserving the original escape direction as much as possible
+      const candidateOffsets = [
+        0.15, -0.15,   // ~8.5°
+        0.30, -0.30,   // ~17°
+        0.45, -0.45,   // ~26°
+        0.60, -0.60,   // ~34°
+        0.75, -0.75,   // ~43°
+        0.95, -0.95,   // ~54°
+        1.20, -1.20,   // ~69°
+        Math.PI / 2, -Math.PI / 2, // 90° (glide along safe wall)
+        1.80, -1.80,   // ~103°
+        2.10, -2.10,   // ~120°
+        2.40, -2.40    // ~137°
+      ];
+
+      for (let offset of candidateOffsets) {
+        const angle = baseAngle + offset;
+        const vx = Math.cos(angle);
+        const vy = Math.sin(angle);
+        const maxD = getMaxRayDistance(curX, curY, vx, vy);
+        if (maxD >= 220) {
+          const travelD = Math.min(desiredDist, maxD);
+          const candX = curX + vx * travelD;
+          const candY = curY + vy * travelD;
+          if (!overlapsYes(candX, candY)) {
+            const candCenterX = candX + btnWidth / 2;
+            const candCenterY = candY + btnHeight / 2;
+            const distFromPointer = Math.hypot(candCenterX - pointerX, candCenterY - pointerY);
+            if (distFromPointer >= 190) {
+              return {
+                x: Math.max(minX, Math.min(maxX, candX)),
+                y: Math.max(minY, Math.min(maxY, candY))
+              };
+            }
+          }
+        }
+      }
+
+      // 4. Safe fallback: Find destination inside safe bounds that maximizes distance from pointer
+      let bestFallback = { x: minX, y: minY };
+      let maxDistFromPointer = -1;
+      const cornerPoints = [
+        { x: minX, y: minY },
+        { x: maxX, y: minY },
+        { x: minX, y: maxY },
+        { x: maxX, y: maxY },
+        { x: (minX + maxX) / 2, y: minY },
+        { x: (minX + maxX) / 2, y: maxY },
+        { x: minX, y: (minY + maxY) / 2 },
+        { x: maxX, y: (minY + maxY) / 2 }
+      ];
+
+      for (let pt of cornerPoints) {
+        if (!overlapsYes(pt.x, pt.y)) {
+          const d = Math.hypot((pt.x + btnWidth / 2) - pointerX, (pt.y + btnHeight / 2) - pointerY);
+          if (d > maxDistFromPointer) {
+            maxDistFromPointer = d;
+            bestFallback = pt;
+          }
+        }
+      }
+
+      return {
+        x: Math.max(minX, Math.min(maxX, bestFallback.x)),
+        y: Math.max(minY, Math.min(maxY, bestFallback.y))
+      };
+    }
+
+    function triggerNoEscape(pointerX, pointerY) {
+      if (state.hasAnswered || state.isAutoYesTriggering || state.isEscaping) return;
+
+      const now = Date.now();
+      // Enforce strict 300ms debounce to prevent any accidental double-firing
+      if (now - state.lastEscapeTime < 300) return;
+      state.lastEscapeTime = now;
+      state.isEscaping = true;
+
+      const oldRect = btnNo.getBoundingClientRect();
+      const actualX = (typeof pointerX === 'number' && !isNaN(pointerX)) ? pointerX : (oldRect.left + oldRect.width / 2);
+      const actualY = (typeof pointerY === 'number' && !isNaN(pointerY)) ? pointerY : (oldRect.top + oldRect.height / 2);
+
+      // Detach to fixed positioning smoothly on first touch without transition jump
+      // Use placeholder div in .buttons-container so YES button NEVER shifts
+      if (!state.isNoDetached) {
+        state.isNoDetached = true;
+        btnNo.classList.add('detached');
+
+        const placeholder = document.createElement('div');
+        placeholder.id = 'btn-no-placeholder';
+        placeholder.style.width = `${oldRect.width}px`;
+        placeholder.style.height = `${oldRect.height}px`;
+        placeholder.style.visibility = 'hidden';
+        placeholder.style.pointerEvents = 'none';
+        placeholder.style.flexShrink = '0';
+        btnNo.parentNode.insertBefore(placeholder, btnNo);
+
+        // Move btnNo directly to document.body so it is not trapped by card backdrop-filter or container transforms
+        document.body.appendChild(btnNo);
+
+        btnNo.style.transition = 'none';
+        btnNo.style.position = 'fixed';
+        btnNo.style.zIndex = '9999';
+        btnNo.style.left = `${oldRect.left}px`;
+        btnNo.style.top = `${oldRect.top}px`;
+        btnNo.style.width = `${oldRect.width}px`;
+        btnNo.style.margin = '0';
+        void btnNo.offsetWidth; // Force reflow
+        btnNo.style.transition = 'left 0.28s cubic-bezier(0.25, 1, 0.5, 1), top 0.28s cubic-bezier(0.25, 1, 0.5, 1), transform 0.28s cubic-bezier(0.25, 1, 0.5, 1)';
+      }
+
+      // Spawn motion ghost at previous position
+      spawnMotionGhost(oldRect);
+
+      // Play fleeing sound
+      AudioEngine.playWhoosh();
+
+      // Calculate true 360-degree safe escape destination
+      const safePos = calculate360EscapePosition(actualX, actualY);
+
+      // Terrified reaction during escape: rotate, scale, shake, change label
+      const escapeTilt = (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 5); // ±5° to ±10°
+      btnNo.classList.add('terrified');
+      const btnNoText = document.getElementById('btn-no-text');
+      const btnNoEmoji = document.getElementById('btn-no-emoji');
+      if (btnNoText) btnNoText.textContent = (state.noEscapeCount >= 8 && Math.random() < 0.3) ? 'NOOO!' : 'NO';
+      if (btnNoEmoji) btnNoEmoji.textContent = '😱💨';
+
+      // Spring glide to new position
+      btnNo.style.left = `${safePos.x}px`;
+      btnNo.style.top = `${safePos.y}px`;
+      btnNo.style.transform = `rotate(${escapeTilt}deg) scale(1.08)`;
+
+      // Increment escape counter
+      state.noEscapeCount++;
+      updateEscapeCounter();
+
+      // Settle after flight (0.28s spring glide completes)
+      setTimeout(() => {
+        btnNo.style.transform = 'rotate(0deg) scale(1)';
+        btnNo.classList.remove('terrified');
+        if (btnNoText) btnNoText.textContent = 'NO';
+        if (btnNoEmoji) btnNoEmoji.textContent = '🏃';
+
+        // Button is now completely still. Allow next escape after short settle
+        setTimeout(() => {
+          state.isEscaping = false;
+        }, 40);
+      }, 280);
+
+      // Auto-YES handling after configured MAX_NO_ESCAPES (25)
+      if (state.noEscapeCount >= MAX_NO_ESCAPES) {
+        showEscapeMessage(MAX_NO_ESCAPES);
+        state.isAutoYesTriggering = true;
+        // Escape #25 completes first, then after 800ms trigger YES flow
+        setTimeout(() => {
+          handleReceiverYes();
+        }, 800);
+      } else {
+        showEscapeMessage(state.noEscapeCount);
+      }
+    }
+
+    // Attach strict event logic (single pointerenter for desktop, clean touch for mobile)
+    function setupStrictNoEscapeLogic() {
+      // 1. Desktop: Preferred pointerenter (one pointer entry = exactly one escape)
+      btnNo.addEventListener('pointerenter', (e) => {
+        if (e.pointerType === 'touch') return; // Handled cleanly by pointerdown for touchscreens
+        triggerNoEscape(e.clientX, e.clientY);
+      });
+
+      // 2. Mobile: Controlled touch interaction (pointerdown)
+      btnNo.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') {
+          e.preventDefault();
+          e.stopPropagation();
+          triggerNoEscape(e.clientX, e.clientY);
+        }
+      });
+
+      // 3. Fallback click interceptor (NEVER allowed to click NO)
+      btnNo.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerNoEscape(e.clientX, e.clientY);
+      });
+
+      // 4. Keyboard focus defense (Tab navigation)
+      btnNo.addEventListener('focus', () => {
+        const rect = btnNo.getBoundingClientRect();
+        triggerNoEscape(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      });
+    }
+
+    // Window resize handler: Keep detached NO button strictly inside 24px safe padding
+    window.addEventListener('resize', () => {
+      if (state.isNoDetached && btnNo) {
+        const rect = btnNo.getBoundingClientRect();
+        const pad = 24;
+        const maxX = Math.max(pad, window.innerWidth - rect.width - pad);
+        const maxY = Math.max(pad, window.innerHeight - rect.height - pad);
+        const curLeft = parseFloat(btnNo.style.left) || rect.left;
+        const curTop = parseFloat(btnNo.style.top) || rect.top;
+        btnNo.style.left = `${Math.max(pad, Math.min(maxX, curLeft))}px`;
+        btnNo.style.top = `${Math.max(pad, Math.min(maxY, curTop))}px`;
+      }
+    });
+
+    /* ==========================================================================
+       7. YES SUBMISSION & CREATOR NOTIFICATION (PERSON B -> PERSON A)
+       ========================================================================== */
+    async function handleReceiverYes() {
+      if (state.hasAnswered) return;
+      state.hasAnswered = true;
+
+      AudioEngine.playCelebrationFanfare();
+      launchConfetti();
+
+      // Submit response to backend
+      const qId = state.activeQuestionId;
+      if (qId) {
+        try {
+          await fetch(`/api/questions/${qId}/respond`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              answer: 'YES',
+              respondent_name: state.respondentName || 'Someone'
+            })
+          });
+        } catch (err) {
+          console.error('Error submitting YES response:', err);
+        }
+      }
+
+      showReceiverCelebration(false);
+      setTimeout(launchConfetti, 400);
+      setTimeout(launchConfetti, 900);
+    }
+
+    // Helper: HTML sanitization
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+  </script>
+</body>
+</html>

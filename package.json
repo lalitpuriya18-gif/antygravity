@@ -1,0 +1,12 @@
+{
+  "name": "just-say-yes",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^10.0.10"
+  }
+}
+

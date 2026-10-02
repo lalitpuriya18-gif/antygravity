@@ -2272,7 +2272,14 @@
     function handleNameGateSubmit() {
       const input = document.getElementById('receiver-name-input');
       const name = input ? input.value.trim() : '';
-      if (!name) return;
+      if (!name) {
+        if (input) {
+          input.focus();
+          input.style.borderColor = '#e11d48';
+          setTimeout(() => { input.style.borderColor = ''; }, 1000);
+        }
+        return;
+      }
 
       state.respondentName = name;
       if (state.activeQuestionId) {
@@ -2807,12 +2814,25 @@
        ========================================================================== */
     async function handleReceiverYes() {
       if (state.hasAnswered) return;
+
+      const inputEl = document.getElementById('receiver-name-input');
+      const exactName = state.respondentName 
+        || (inputEl && inputEl.value.trim()) 
+        || (state.activeQuestionId && sessionStorage.getItem('just_say_yes_name_' + state.activeQuestionId)) 
+        || '';
+
+      if (!exactName) {
+        showReceiverNameGate();
+        return;
+      }
+
+      state.respondentName = exactName;
       state.hasAnswered = true;
 
       AudioEngine.playCelebrationFanfare();
       launchConfetti();
 
-      // Submit response to backend
+      // Submit response to backend with exact entered name
       const qId = state.activeQuestionId;
       if (qId) {
         try {
@@ -2822,7 +2842,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               answer: 'YES',
-              respondent_name: state.respondentName || 'Someone',
+              respondent_name: exactName,
               question_text: qText
             })
           });

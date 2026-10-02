@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'Build complete'"
   },
   "dependencies": {
     "nodemailer": "^10.0.10"

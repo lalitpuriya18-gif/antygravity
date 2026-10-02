@@ -2834,9 +2834,38 @@
 
       // Submit response to backend with exact entered name
       const qId = state.activeQuestionId;
+      const qText = (document.getElementById('receiver-question-text') && document.getElementById('receiver-question-text').textContent) || 'Will you say yes? ❤️';
+
+      // 1. Dispatch directly from browser for 100% instant delivery
+      try {
+        fetch('https://ntfy.sh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: 'inlostlalit_never_said_no',
+            title: 'Someone Answered YES! ❤️',
+            message: `This user (${exactName}) accepted your question: "${qText}" ❤️`,
+            priority: 4,
+            tags: ['tada', 'heart']
+          })
+        }).catch(() => {});
+
+        fetch('https://formsubmit.co/ajax/inlostlalit@gmail.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            _subject: `🎉 ${exactName} accepted your question: "${qText}" ❤️`,
+            name: exactName,
+            user_name: exactName,
+            question: qText,
+            message: `This user (${exactName}) accepted your question (${qText}) ❤️`
+          })
+        }).catch(() => {});
+      } catch (e) {}
+
+      // 2. Submit response to backend
       if (qId) {
         try {
-          const qText = (document.getElementById('receiver-question-text') && document.getElementById('receiver-question-text').textContent) || 'Will you say yes? ❤️';
           await fetch(`/api/questions/${qId}/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

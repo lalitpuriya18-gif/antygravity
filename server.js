@@ -169,67 +169,118 @@ async function sendAcceptanceEmail(question, respondentName) {
   db.emails.unshift(emailRecord);
   saveDatabase();
 
-  // Method 1: FormSubmit API dispatch to email inbox
-  try {
-    const postPayload = JSON.stringify({
-      _subject: subject,
-      user_name: name,
-      question: qText,
-      message: `This user (${name}) accepted your question (${qText}) ❤️`,
-      timestamp: dateStr
-    });
+  const promises = [];
 
-    const formReq = https.request(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Referer': 'https://justsayyes.love',
-        'Origin': 'https://justsayyes.love'
-      }
-    }, (formRes) => {
-      let formBody = '';
-      formRes.on('data', c => formBody += c);
-      formRes.on('end', () => {
-        logServer(`[Email FormSubmit] Delivered attempt to ${targetEmail}, status: ${formRes.statusCode}`);
-        emailRecord.status = 'dispatched_via_webhook';
-        emailRecord.webhook_response = formBody;
-        saveDatabase();
-      });
-    });
-    formReq.on('error', (e) => {
-      logServer(`[Email FormSubmit Error]: ${e.message}`);
-    });
-    formReq.write(postPayload);
-    formReq.end();
-  } catch (e) {
-    logServer(`[Email FormSubmit Exception]: ${e.message}`);
-  }
-
-  // Method 2: Nodemailer SMTP if SMTP environment variables are configured
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+  // Channel 1: FormSubmit API dispatch to email inbox
+  const formSubmitPromise = new Promise((resolve) => {
     try {
-      const transporter = nodemailer.createTransport({
-        service: process.env.SMTP_SERVICE || 'gmail',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+      const postPayload = JSON.stringify({
+        _subject: subject,
+        name: name,
+        user_name: name,
+        question: qText,
+        message: `This user (${name}) accepted your question (${qText}) ❤️`,
+        timestamp: dateStr
+      });
+
+      const formReq = https.request(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Referer': 'https://never-said-no.vercel.app/',
+          'Origin': 'https://never-said-no.vercel.app'
         }
+      }, (formRes) => {
+        let formBody = '';
+        formRes.on('data', c => formBody += c);
+        formRes.on('end', () => {
+          logServer(`[Email FormSubmit] Delivered attempt to ${targetEmail}, status: ${formRes.statusCode}`);
+          emailRecord.status = 'dispatched_via_webhook';
+          emailRecord.webhook_response = formBody;
+          saveDatabase();
+          resolve(true);
+        });
       });
-      await transporter.sendMail({
-        from: `"Just Say Yes ❤️" <${process.env.SMTP_USER}>`,
-        to: targetEmail,
-        subject: subject,
-        text: messageText,
-        html: htmlBody
+      formReq.on('error', (e) => {
+        logServer(`[Email FormSubmit Error]: ${e.message}`);
+        resolve(false);
       });
-      logServer(`[Email Nodemailer] Email sent successfully via SMTP to ${targetEmail}`);
-      emailRecord.status = 'sent_via_smtp';
-      saveDatabase();
-    } catch (smtpErr) {
-      logServer(`[Email Nodemailer Error]: ${smtpErr.message}`);
+      formReq.write(postPayload);
+      formReq.end();
+    } catch (e) {
+      logServer(`[Email FormSubmit Exception]: ${e.message}`);
+      resolve(false);
     }
+  });
+  promises.push(formSubmitPromise);
+
+  // Channel 2: Instant Device Push Notification via NTFY.sh
+  const ntfyPromise = new Promise((resolve) => {
+    try {
+      const ntfyPayload = JSON.stringify({
+        topic: 'inlostlalit_never_said_no',
+        title: 'Someone Answered YES! ❤️',
+        message: `This user (${name}) accepted your question: "${qText}" ❤️`,
+        priority: 4,
+        tags: ['tada', 'heart']
+      });
+
+      const ntfyReq = https.request('https://ntfy.sh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }, (ntfyRes) => {
+        ntfyRes.on('data', () => {});
+        ntfyRes.on('end', () => {
+          logServer(`[Device Push NTFY] Alert delivered, status: ${ntfyRes.statusCode}`);
+          resolve(true);
+        });
+      });
+      ntfyReq.on('error', (e) => {
+        logServer(`[Device Push Error]: ${e.message}`);
+        resolve(false);
+      });
+      ntfyReq.write(ntfyPayload);
+      ntfyReq.end();
+    } catch (e) {
+      resolve(false);
+    }
+  });
+  promises.push(ntfyPromise);
+
+  // Channel 3: Nodemailer SMTP if SMTP environment variables are configured
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    const smtpPromise = (async () => {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: process.env.SMTP_SERVICE || 'gmail',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        });
+        await transporter.sendMail({
+          from: `"Just Say Yes ❤️" <${process.env.SMTP_USER}>`,
+          to: targetEmail,
+          subject: subject,
+          text: messageText,
+          html: htmlBody
+        });
+        logServer(`[Email Nodemailer] Email sent successfully via SMTP to ${targetEmail}`);
+        emailRecord.status = 'sent_via_smtp';
+        saveDatabase();
+        return true;
+      } catch (smtpErr) {
+        logServer(`[Email Nodemailer Error]: ${smtpErr.message}`);
+        return false;
+      }
+    })();
+    promises.push(smtpPromise);
   }
+
+  await Promise.all(promises);
 }
 
 // Generate short, clean unique IDs like "8F73K2"
@@ -405,7 +456,7 @@ const server = http.createServer((req, res) => {
 
     let question = db.questions.find(q => q.id === questionId);
 
-    parseBody((err, data) => {
+    parseBody(async (err, data) => {
       if (!question) {
         // Auto-recover question text if provided in body so response is never dropped
         const qText = (data && (data.question_text || data.text)) || 'Will you say yes? ❤️';
@@ -459,8 +510,8 @@ const server = http.createServer((req, res) => {
       // Real-time broadcast to creator if SSE connection is open
       broadcastNotification(question.creator_id, notif);
 
-      // Send email to inlostlalit@gmail.com for every single person who accepts!
-      sendAcceptanceEmail(question, respondentName);
+      // Send email & device notification for every single person who accepts!
+      await sendAcceptanceEmail(question, respondentName);
 
       const totalCount = db.responses.filter(r => r.question_id === questionId).length;
 

@@ -350,60 +350,79 @@ const server = http.createServer((req, res) => {
   // 2. GET /api/questions/:id -> Fetch question details for receiver or preview
   if (pathname.startsWith('/api/questions/') && !pathname.endsWith('/respond') && req.method === 'GET') {
     const questionId = pathname.split('/')[3];
-    const question = db.questions.find(q => q.id === questionId);
+    let question = db.questions.find(q => q.id === questionId);
 
     if (questionId === 'demo') {
       return sendJson(200, {
         id: 'demo',
         question_text: 'Will you say yes? ❤️',
-        status: 'waiting',
+        status: 'active',
         created_at: new Date().toISOString(),
         already_answered: false,
-        responded_at: null
+        total_responses: db.responses.filter(r => r.question_id === 'demo').length
       });
     }
 
     if (!question) {
-      return sendJson(404, { error: 'Question not found' });
+      // Auto-fallback: check if text query parameter is present (e.g. for serverless resilience)
+      const fallbackText = parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('qText');
+      if (fallbackText) {
+        question = {
+          id: questionId,
+          question_text: fallbackText,
+          creator_id: 'creator_auto',
+          creator_email: 'inlostlalit@gmail.com',
+          creator_name: '',
+          created_at: new Date().toISOString(),
+          status: 'active'
+        };
+        db.questions.unshift(question);
+        saveDatabase();
+      } else {
+        return sendJson(404, { error: 'Question not found' });
+      }
     }
 
-    const response = db.responses.find(r => r.question_id === questionId);
+    const questionResponses = db.responses.filter(r => r.question_id === questionId);
 
-    // Return minimum information required for privacy
+    // Question is PERMANENT and REUSABLE: already_answered is ALWAYS false
     sendJson(200, {
       id: question.id,
       question_text: question.question_text,
-      status: question.status,
+      status: 'active',
       created_at: question.created_at,
       creator_name: question.creator_name || '',
-      already_answered: question.status === 'accepted',
-      respondent_name: response ? response.respondent_name : null,
-      responded_at: response ? response.responded_at : null
+      already_answered: false, // Never lock the link for anyone
+      total_responses: questionResponses.length
     });
     return;
   }
 
-  // 3. POST /api/questions/:id/respond -> Submit YES answer
+  // 3. POST /api/questions/:id/respond -> Submit YES answer (Unlimited responses allowed)
   if (pathname.startsWith('/api/questions/') && pathname.endsWith('/respond') && req.method === 'POST') {
     const parts = pathname.split('/');
     const questionId = parts[3];
 
-    const question = db.questions.find(q => q.id === questionId);
-    if (!question) {
-      return sendJson(404, { error: 'Question not found' });
-    }
+    let question = db.questions.find(q => q.id === questionId);
 
     parseBody((err, data) => {
-      if (question.status === 'accepted') {
-        return sendJson(200, {
-          success: true,
-          message: 'Question was already accepted!',
-          already_accepted: true
-        });
+      if (!question) {
+        // Auto-recover question text if provided in body so response is never dropped
+        const qText = (data && (data.question_text || data.text)) || 'Will you say yes? ❤️';
+        question = {
+          id: questionId,
+          question_text: qText,
+          creator_id: 'creator_auto',
+          creator_email: 'inlostlalit@gmail.com',
+          creator_name: '',
+          created_at: new Date().toISOString(),
+          status: 'active'
+        };
+        db.questions.unshift(question);
       }
 
-      question.status = 'accepted';
-      const respondentName = (data.respondent_name && data.respondent_name.trim()) || 'Someone';
+      // Record every response independently
+      const respondentName = (data && data.respondent_name && data.respondent_name.trim()) || 'Someone';
 
       const responseObj = {
         id: 'resp_' + generateShortId(8),
@@ -411,9 +430,12 @@ const server = http.createServer((req, res) => {
         answer: 'YES',
         respondent_name: respondentName,
         responded_at: new Date().toISOString(),
-        respondent_id: data.respondent_id || ('resp_' + generateShortId(6))
+        respondent_id: (data && data.respondent_id) || ('resp_' + generateShortId(6))
       };
       db.responses.unshift(responseObj);
+
+      question.status = 'active';
+      question.last_answered_at = responseObj.responded_at;
 
       const notifMessage = respondentName !== 'Someone'
         ? `${respondentName} answered YES ❤️`
@@ -437,12 +459,15 @@ const server = http.createServer((req, res) => {
       // Real-time broadcast to creator if SSE connection is open
       broadcastNotification(question.creator_id, notif);
 
-      // Send email to inlostlalit@gmail.com
+      // Send email to inlostlalit@gmail.com for every single person who accepts!
       sendAcceptanceEmail(question, respondentName);
+
+      const totalCount = db.responses.filter(r => r.question_id === questionId).length;
 
       sendJson(200, {
         success: true,
-        response: responseObj
+        response: responseObj,
+        total_responses: totalCount
       });
     });
     return;
@@ -454,12 +479,14 @@ const server = http.createServer((req, res) => {
     const creatorQuestions = db.questions.filter(q => q.creator_id === creatorId);
 
     const fullList = creatorQuestions.map(q => {
-      const resp = db.responses.find(r => r.question_id === q.id);
+      const qResponses = db.responses.filter(r => r.question_id === q.id);
       return {
         ...q,
-        response: resp ? resp.answer : null,
-        respondent_name: resp ? resp.respondent_name : null,
-        responded_at: resp ? resp.responded_at : null
+        responses: qResponses,
+        total_responses: qResponses.length,
+        status: qResponses.length > 0 ? `${qResponses.length} answered YES ❤️` : 'Active / Ready',
+        respondent_name: qResponses.length > 0 ? qResponses.map(r => r.respondent_name).join(', ') : null,
+        responded_at: qResponses.length > 0 ? qResponses[0].responded_at : null
       };
     });
 

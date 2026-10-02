@@ -1480,6 +1480,11 @@
             <p class="celebration-desc" id="celebration-desc-txt">
               Your YES has been delivered. We always knew you'd make the right choice! 😘
             </p>
+            <div style="margin-top: 22px;">
+              <button type="button" class="btn-primary" onclick="resetForAnotherAnswer()" style="display:inline-flex; width:auto; padding:12px 26px; font-size:0.95rem; cursor:pointer;">
+                <span>Say YES Again 🔄</span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -2197,38 +2202,48 @@
       if (creatorModeContainer) creatorModeContainer.style.display = 'none';
       receiverModeContainer.style.display = 'block';
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlText = urlParams.get('text') || urlParams.get('qText');
+
       if (!qId || qId === 'demo' || qId === 'preview') {
-        document.getElementById('receiver-question-text').textContent = 'Will you say yes? ❤️';
+        document.getElementById('receiver-question-text').textContent = urlText || 'Will you say yes? ❤️';
         checkNameGateThenEnter('demo');
         return;
       }
 
+      // If text is in URL, display it immediately
+      if (urlText) {
+        document.getElementById('receiver-question-text').textContent = urlText;
+      }
+
       try {
-        const res = await fetch(`/api/questions/${qId}`);
-        if (!res.ok) {
-          showReceiverError();
-          return;
-        }
-
-        const data = await res.json();
-        state.currentQuestionData = data;
-        document.getElementById('receiver-question-text').textContent = data.question_text || 'Will you say yes? ❤️';
-
-        if (data.already_answered) {
-          state.hasAnswered = true;
-          showReceiverCelebration(true);
+        const fetchUrl = `/api/questions/${qId}${urlText ? `?text=${encodeURIComponent(urlText)}` : ''}`;
+        const res = await fetch(fetchUrl);
+        if (res.ok) {
+          const data = await res.json();
+          state.currentQuestionData = data;
+          document.getElementById('receiver-question-text').textContent = data.question_text || urlText || 'Will you say yes? ❤️';
+        } else if (urlText) {
+          document.getElementById('receiver-question-text').textContent = urlText;
         } else {
-          checkNameGateThenEnter(qId);
+          document.getElementById('receiver-question-text').textContent = 'Will you say yes? ❤️';
         }
       } catch (err) {
         console.error('Error fetching question:', err);
-        showReceiverError();
+        if (urlText) {
+          document.getElementById('receiver-question-text').textContent = urlText;
+        } else {
+          document.getElementById('receiver-question-text').textContent = 'Will you say yes? ❤️';
+        }
       }
+
+      // Link is permanent & reusable: Always allow entering name and submitting
+      checkNameGateThenEnter(qId);
     }
 
     function checkNameGateThenEnter(qId) {
       const savedName = sessionStorage.getItem('just_say_yes_name_' + qId);
-      if (savedName) {
+      if (savedName && !state.hasAnswered) {
         state.respondentName = savedName;
         showReceiverArena();
       } else {
@@ -2314,18 +2329,36 @@
       const subtitleEl = document.querySelector('.celebration-subtitle');
       const descEl = document.getElementById('celebration-desc-txt');
 
-      if (alreadyAnswered) {
-        if (subtitleEl) subtitleEl.textContent = name 
-          ? `This question was already accepted by ${name}! ❤️` 
-          : 'This question was already accepted! ❤️';
-      } else {
-        if (subtitleEl) subtitleEl.textContent = 'Answer Sent ❤️';
-        if (descEl) {
-          descEl.textContent = name
-            ? `Thank you, ${name}! Your YES has been delivered to the creator. We always knew you'd make the right choice! 😘`
-            : `Your YES has been delivered. We always knew you'd make the right choice! 😘`;
-        }
+      if (subtitleEl) subtitleEl.textContent = 'Answer Sent ❤️';
+      if (descEl) {
+        descEl.textContent = name
+          ? `Thank you, ${name}! Your YES has been delivered to the creator. We always knew you'd make the right choice! 😘`
+          : `Your YES has been delivered. We always knew you'd make the right choice! 😘`;
       }
+    }
+
+    function resetForAnotherAnswer() {
+      state.hasAnswered = false;
+      state.isAutoYesTriggering = false;
+      state.noEscapeCount = 0;
+      if (state.activeQuestionId) {
+        sessionStorage.removeItem('just_say_yes_name_' + state.activeQuestionId);
+      }
+      const input = document.getElementById('receiver-name-input');
+      if (input) input.value = '';
+
+      if (btnNo) {
+        btnNo.style.display = 'inline-flex';
+        btnNo.style.pointerEvents = 'auto';
+        btnNo.style.transform = 'none';
+        btnNo.classList.remove('terrified');
+        const btnNoText = document.getElementById('btn-no-text');
+        const btnNoEmoji = document.getElementById('btn-no-emoji');
+        if (btnNoText) btnNoText.textContent = 'NO';
+        if (btnNoEmoji) btnNoEmoji.textContent = '🏃';
+      }
+
+      showReceiverNameGate();
     }
 
     function showReceiverError() {
@@ -2783,12 +2816,14 @@
       const qId = state.activeQuestionId;
       if (qId) {
         try {
+          const qText = (document.getElementById('receiver-question-text') && document.getElementById('receiver-question-text').textContent) || 'Will you say yes? ❤️';
           await fetch(`/api/questions/${qId}/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               answer: 'YES',
-              respondent_name: state.respondentName || 'Someone'
+              respondent_name: state.respondentName || 'Someone',
+              question_text: qText
             })
           });
         } catch (err) {
